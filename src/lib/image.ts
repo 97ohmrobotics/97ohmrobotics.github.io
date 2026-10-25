@@ -1,7 +1,7 @@
 // Фото з людьми зберігаються не в репозиторії, а в Cloudinary наставника:
 // звідти їх можна видалити назавжди, а з історії git — ні.
 // Тут лише ім'я хмари (cloud name), не ключ API. Воно й так видно в кожному посиланні.
-export const CLOUDINARY_CLOUD = 'TODO-cloud-name';
+export const CLOUDINARY_CLOUD = 'lyceum97media';
 
 const UPLOAD = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/`;
 

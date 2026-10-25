@@ -93,6 +93,8 @@ const journal = defineCollection({
     }),
 });
 
+const ROLES = ['капітан', 'механіка', 'електроніка', 'програмування', 'маркетинг', 'наставник'] as const;
+
 const members = defineCollection({
   loader: fromFolder('members'),
   schema: z.object({
@@ -100,7 +102,12 @@ const members = defineCollection({
     name: z
       .string()
       .regex(/^\S+( \S\.)?$/u, 'Тільки ім’я і перша літера прізвища з крапкою, наприклад «Олена К.»'),
-    role: z.enum(['механіка', 'електроніка', 'програмування', 'капітан', 'наставник']),
+    // Один напрям або кілька: role: "механіка" чи role: [програмування, маркетинг]
+    role: z
+      .union([z.enum(ROLES), z.array(z.enum(ROLES)).min(1)])
+      .transform((r) => (Array.isArray(r) ? r : [r])),
+    // Як підписати роль на картці, якщо напряму замало: «тімлід», «головний електронік».
+    title: optional(z.string().max(60, 'Підпис ролі — до 60 символів')),
     grade: optional(z.number().int().min(1).max(12)),
     joined: z.number().int().min(2020),
     // Портрет — тільки після письмової згоди батьків. Поки порожньо → ініціали.

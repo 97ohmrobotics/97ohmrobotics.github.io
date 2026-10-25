@@ -233,32 +233,17 @@ const quote = (t: string) => t.replace(/^.*«(.+)».*$/, '«$1»');
     border-top: 1px dashed var(--line);
   }
 
-  /* Шина: вертикальна лінія з вузлами, до якої «підключені» розділи */
+  /* Шина (база в global.css): розділи головної — вузли NET 01…05 */
   .bus {
-    position: relative;
     display: flex;
     flex-direction: column;
     gap: 72px;
-    border-left: 1.5px solid var(--line);
-    padding-left: clamp(20px, 3vw, 36px);
   }
   .net {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 22px;
-  }
-  .node {
-    position: absolute;
-    top: 6px;
-    left: calc(-1 * clamp(20px, 3vw, 36px) - 7px);
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--wire);
-  }
-  .node.yellow {
-    background: var(--yellow);
   }
   .sec-head {
     display: flex;

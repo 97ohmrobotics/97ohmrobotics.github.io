@@ -1,0 +1,218 @@
+---
+import Base from '../layouts/Base.astro';
+import Filters from '../components/Filters.astro';
+import { getMembers, getProjects, projectCodes, initials, avatarColor, ROLE_GROUP } from '../lib/site';
+
+const all = await getMembers();
+const projects = await getProjects();
+const codes = await projectCodes();
+
+const rank = { капітан: 0, механіка: 1, електроніка: 2, програмування: 3, наставник: 9 } as const;
+const students = all
+  .filter((m) => m.data.role !== 'наставник' && m.data.active)
+  .sort((a, b) => rank[a.data.role] - rank[b.data.role] || a.data.name.localeCompare(b.data.name, 'uk'));
+const mentors = all.filter((m) => m.data.role === 'наставник');
+const alumni = all.filter((m) => m.data.role !== 'наставник' && !m.data.active);
+
+const projectsOf = (id: string) =>
+  projects.filter((p) => p.data.team.some((t) => t.id === id)).map((p) => codes.get(p.id));
+
+const about = (m: (typeof all)[number]) => (m.body ?? '').trim();
+
+const options = [
+  { id: 'all', label: 'Усі' },
+  { id: 'me', label: 'Механіка' },
+  { id: 'el', label: 'Електроніка' },
+  { id: 'sw', label: 'Програмування' },
+].filter((o) => o.id === 'all' || students.some((m) => ROLE_GROUP[m.data.role] === o.id));
+---
+
+<Base title="Команда" sheet={{ name: 'Команда', n: 4 }} description="Склад команди 97 Ohm: учні ліцею №97 і наставник.">
+  <div class="page-head">
+    <span class="kicker">J4 — склад команди</span>
+    <h1>Команда</h1>
+    <p class="lead">Учні ліцею №97. Кожен відповідає за свою частину робота: механіку, електроніку або код.</p>
+    <p class="note">ПРИМІТКА: фото облич учнів не публікуємо без письмової згоди батьків, тому замість портретів ініціали.</p>
+  </div>
+
+  {
+    students.length > 0 ? (
+      <>
+        {options.length > 2 && <Filters label="Фільтр за напрямом" target="team-list" options={options} />}
+        <div class="chips" id="team-list">
+          {students.map((m, i) => {
+            const ps = projectsOf(m.id);
+            return (
+              <div class="ic lift" data-group={ROLE_GROUP[m.data.role]}>
+                <span class="notch" aria-hidden="true" />
+                <div class="who">
+                  {m.data.avatar ? (
+                    <img class="av" src={m.data.avatar} alt="" />
+                  ) : (
+                    <span class:list={['av', `av-${avatarColor(m.id)}`]} aria-hidden="true">
+                      {initials(m.data.name)}
+                    </span>
+                  )}
+                  <div class="meta">
+                    <span class="mono pos">U{i + 1}</span>
+                    <b>{m.data.name}</b>
+                    <span class="mono role">
+                      {m.data.role}
+                      {m.data.grade && ` · ${m.data.grade} кл.`}
+                    </span>
+                  </div>
+                </div>
+                {about(m) && <span class="text">{about(m)}</span>}
+                {ps.length > 0 && <span class="mono projects">Проєкти: {ps.join(', ')}</span>}
+              </div>
+            );
+          })}
+        </div>
+      </>
+    ) : (
+      <div class="empty">
+        <p>Склад команди з’явиться тут, коли учні додадуть свої картки.</p>
+      </div>
+    )
+  }
+
+  {
+    mentors.map((m) => (
+      <section class="mentor">
+        <div class="who">
+          <span class="av av-dash" aria-hidden="true">
+            {initials(m.data.name)}
+          </span>
+          <div class="meta">
+            <span class="mono pos">U0 — наставник</span>
+            <b>{m.data.name}</b>
+            {about(m) && <span class="text">{about(m)}</span>}
+          </div>
+        </div>
+        <a href="/join/" class="btn yellow">
+          Хочу в команду →
+        </a>
+      </section>
+    ))
+  }
+
+  {
+    alumni.length > 0 && (
+      <section class="alumni">
+        <h2>Випускники команди</h2>
+        <p class="lead">{alumni.map((m) => m.data.name).join(', ')}</p>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 24px 20px;
+  }
+  /* Картка-мікросхема DIP: ніжки з боків і виїмка ключа зверху */
+  .ic {
+    position: relative;
+    margin: 0 10px;
+    padding: 26px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+  }
+  .ic[hidden] {
+    display: none;
+  }
+  .ic::before,
+  .ic::after {
+    content: '';
+    position: absolute;
+    top: 18px;
+    bottom: 18px;
+    width: 9px;
+    background-image: repeating-linear-gradient(180deg, var(--violet-light) 0 3px, transparent 3px 14px);
+  }
+  .ic::before {
+    left: -10px;
+  }
+  .ic::after {
+    right: -10px;
+  }
+  .notch {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    width: 22px;
+    height: 11px;
+    margin-left: -11px;
+    border: 1px solid var(--line);
+    border-top: none;
+    border-radius: 0 0 11px 11px;
+    background: var(--bg);
+  }
+  .who {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  img.av {
+    object-fit: cover;
+  }
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .meta b {
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .pos {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--hi);
+    text-transform: uppercase;
+  }
+  .role {
+    font-size: 12px;
+    color: var(--wire);
+    text-transform: uppercase;
+  }
+  .text {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--fg2);
+  }
+  .projects {
+    padding-top: 10px;
+    border-top: 1px dashed var(--div);
+    font-size: 12px;
+    color: var(--wire);
+    text-transform: uppercase;
+  }
+  .mentor {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 48px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: var(--panel);
+    border: 1px dashed var(--line);
+  }
+  .mentor .who {
+    flex: 1 1 420px;
+  }
+  .alumni {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .alumni h2 {
+    font-size: 22px;
+  }
+</style>

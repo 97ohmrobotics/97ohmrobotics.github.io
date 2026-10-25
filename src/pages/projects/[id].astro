@@ -1,0 +1,267 @@
+---
+import { getEntries, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Photo from '../../components/Photo.astro';
+import StatusTag from '../../components/StatusTag.astro';
+import { getProjects, getPosts, projectCodes, isoDate, initials, avatarColor, summaryOf } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { id: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const d = project.data;
+const codes = await projectCodes();
+const code = codes.get(project.id)!;
+
+// Розділ «Що не вийшло» обов'язковий для всіх, крім ідей: це вимога до інженерного журналу.
+if (d.status !== 'idea' && !/^##\s+Що не вийшло/m.test(project.body ?? '')) {
+  throw new Error(
+    `Проєкт «${d.title}» (${project.filePath}): додай розділ «## Що не вийшло». Він обов’язковий для всіх проєктів, крім ідей.`,
+  );
+}
+
+const { Content } = await render(project);
+const team = await getEntries(d.team);
+const posts = (await getPosts()).filter((p) => p.data.project?.id === project.id);
+
+const bom = [
+  d.hardware.controller && { pos: 'Контролер', items: [d.hardware.controller] },
+  d.hardware.sensors.length && { pos: 'Датчики', items: d.hardware.sensors },
+  d.hardware.actuators.length && { pos: 'Виконавчі', items: d.hardware.actuators },
+  d.hardware.power && { pos: 'Живлення', items: [d.hardware.power] },
+].filter(Boolean) as { pos: string; items: string[] }[];
+---
+
+<Base title={d.title} description={summaryOf(project)} image={d.cover} sheet={{ name: `${code} · ${d.title}` }}>
+  <a href="/projects/" class="back">← J2 / Реєстр проєктів</a>
+
+  <div class="head">
+    <div class="titles">
+      <span class="kicker">{code}{d.tags.length > 0 && ` · ${d.tags.join(' · ')}`}</span>
+      <h1>{d.title}</h1>
+    </div>
+    <div class="badges">
+      <StatusTag status={d.status} />
+      {d.started && <span class="tag plain">З {isoDate(d.started)}</span>}
+      {d.finished && <span class="tag plain">ДО {isoDate(d.finished)}</span>}
+    </div>
+  </div>
+
+  <Photo src={d.cover} alt={d.cover_alt} ratio="21 / 9" class="cover" label={d.cover ? undefined : 'фото проєкту буде згодом'} eager />
+
+  <div class="layout">
+    <article class="prose numbered">
+      <Content />
+    </article>
+
+    <aside>
+      {
+        bom.length > 0 && (
+          <div class="panel box">
+            <h2>Перелік елементів</h2>
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th scope="col">ГРУПА</th>
+                  <th scope="col">НАЙМЕНУВАННЯ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bom.map((row) => (
+                  <tr>
+                    <td class="mono pos">{row.pos}</td>
+                    <td>
+                      {row.items.map((it) => (
+                        <div>{it}</div>
+                      ))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
+      {
+        (d.code || d.video) && (
+          <div class="links">
+            {d.code && (
+              <a href={d.code} class="btn yellow">
+                Код на GitHub →
+              </a>
+            )}
+            {d.video && (
+              <a href={d.video} class="btn">
+                Відео →
+              </a>
+            )}
+          </div>
+        )
+      }
+
+      {
+        team.length > 0 && (
+          <div class="people">
+            <h2>Виконавці</h2>
+            {team.map((m) => (
+              <a href="/team/" class="person">
+                <span class:list={['av sm', `av-${avatarColor(m.id)}`]} aria-hidden="true">
+                  {initials(m.data.name)}
+                </span>
+                <span class="pinfo">
+                  <b>{m.data.name}</b>
+                  <span class="mono">{m.data.role}</span>
+                </span>
+              </a>
+            ))}
+          </div>
+        )
+      }
+
+      {
+        posts.length > 0 && (
+          <div class="people">
+            <h2>Записи в журналі</h2>
+            <div class="rows">
+              {posts.map((p) => (
+                <a href={`/journal/${p.id}/`} class="row">
+                  <span class="mono date">{isoDate(p.data.date)}</span>
+                  <span class="ptitle">{p.data.title}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )
+      }
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .titles {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .badges .tag {
+    font-size: 12px;
+    padding: 7px 11px;
+  }
+  .tag.plain {
+    background: var(--panel);
+    border-color: var(--line);
+    color: var(--fg2);
+  }
+  :global(.cover) {
+    border: 1px solid var(--line);
+  }
+  .layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    align-items: flex-start;
+    padding-top: 8px;
+  }
+  article {
+    flex: 999 1 600px;
+    min-width: 0;
+  }
+  aside {
+    flex: 1 1 300px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  aside h2 {
+    font-size: 18px;
+  }
+  .box {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .tbl th {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--wire);
+    text-align: left;
+    padding: 9px 12px 9px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .tbl td {
+    padding: 12px 12px 12px 0;
+    border-bottom: 1px solid var(--div);
+    vertical-align: top;
+  }
+  .pos {
+    font-size: 12px;
+    color: var(--hi);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .people {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .person {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid transparent;
+    color: var(--fg);
+    text-decoration: none;
+    background: var(--panel);
+  }
+  .person:hover {
+    border-color: var(--wire);
+    color: var(--fg);
+  }
+  .pinfo {
+    display: flex;
+    flex-direction: column;
+  }
+  .pinfo .mono {
+    font-size: 12px;
+    color: var(--wire);
+    text-transform: uppercase;
+  }
+  .date {
+    font-size: 13px;
+    color: var(--fg2);
+  }
+  .ptitle {
+    flex: 1 1 200px;
+    font-weight: 700;
+  }
+</style>

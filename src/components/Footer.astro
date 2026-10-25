@@ -1,0 +1,85 @@
+---
+import { SITE } from '../lib/site';
+
+interface Props {
+  sheet?: { name: string; n?: number };
+}
+const { sheet } = Astro.props;
+const built = new Date().toISOString().slice(0, 7);
+---
+
+<footer class="tb">
+  <div class="inner">
+    <div class="cells">
+      <div class="cell"><span>НАЗВА</span><strong>{SITE.name}</strong></div>
+      {
+        sheet && (
+          <div class="cell">
+            <span>АРКУШ</span>
+            <b>
+              {sheet.name}
+              {sheet.n && ` · ${String(sheet.n).padStart(2, '0')} / 05`}
+            </b>
+          </div>
+        )
+      }
+      <div class="cell"><span>ОРГАНІЗАЦІЯ</span><b>{SITE.org}</b></div>
+      <div class="cell">
+        <span>ЗВ’ЯЗОК</span>
+        <span class="links"><a href={SITE.github}>GitHub</a><a href="/join/#contacts">Контакти</a></span>
+      </div>
+      <div class="cell"><span>РЕДАКЦІЯ</span><a class="mono" href={SITE.repo}>{built} · через PR</a></div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .tb {
+    border-top: 1px solid var(--line);
+    background: var(--footer);
+    transition: background-color 0.3s;
+  }
+  .inner {
+    max-width: var(--wrap);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+  .cells {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    border-left: 1px solid var(--div);
+  }
+  .cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 18px 16px;
+    border-right: 1px solid var(--div);
+    border-bottom: 1px solid var(--div);
+    margin-bottom: -1px;
+  }
+  .cell > span:first-child {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--wire);
+  }
+  .cell strong {
+    font-weight: 800;
+  }
+  .cell b {
+    font-weight: 700;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  a {
+    color: var(--fg);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--hi);
+  }
+</style>

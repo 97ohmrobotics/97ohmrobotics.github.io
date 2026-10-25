@@ -1,0 +1,39 @@
+---
+// Кнопки-фільтри для списку. Без JavaScript кнопки сховані й видно весь список.
+// Елементи списку мають атрибут data-group зі значенням одного з options.
+interface Props {
+  label: string;
+  target: string; // id контейнера зі списком
+  options: { id: string; label: string; n?: number }[];
+}
+const { label, target, options } = Astro.props;
+---
+
+<div class="filters" role="group" aria-label={label} data-filter-for={target}>
+  {
+    options.map((o, i) => (
+      <button type="button" class="chip" data-value={o.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+        {o.label}
+        {o.n !== undefined && ` · ${o.n}`}
+      </button>
+    ))
+  }
+</div>
+
+<script>
+  for (const group of document.querySelectorAll<HTMLElement>('[data-filter-for]')) {
+    const list = document.getElementById(group.dataset.filterFor!);
+    if (!list) continue;
+    const buttons = [...group.querySelectorAll<HTMLButtonElement>('button')];
+    for (const btn of buttons) {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value;
+        for (const b of buttons) b.setAttribute('aria-pressed', String(b === btn));
+        for (const item of list.querySelectorAll<HTMLElement>('[data-group]')) {
+          item.hidden = value !== 'all' && !item.dataset.group!.split(' ').includes(value!);
+        }
+      });
+    }
+    group.classList.add('ready');
+  }
+</script>

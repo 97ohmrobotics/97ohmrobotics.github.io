@@ -1,0 +1,310 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+
+const page = (await getEntry('pages', 'join'))!;
+const d = page.data;
+const { Content } = await render(page);
+const tg = d.telegram?.replace(/^https?:\/\/t\.me\//, '@');
+---
+
+<Base title={d.title} sheet={{ name: 'Приєднатися', n: 5 }} description={d.description}>
+  <div class="page-head">
+    <span class="kicker">J5 — вхід</span>
+    <h1>{d.title}</h1>
+    {d.description && <p class="lead">{d.description}</p>}
+  </div>
+
+  <section aria-label="Як приєднатися" class="circuit-wrap">
+    <span class="mono fig">РИС. 1 — послідовне з’єднання</span>
+    <div class="circuit">
+      <span class="mono io">IN ●</span>
+      <div class="wire" aria-hidden="true"><span></span></div>
+      <div class="step">
+        <span class="mono r">R1 · крок 1</span>
+        <b>Прийди на заняття</b>
+        <span>{d.schedule ?? 'Розклад уточнюється'}{d.place && `, ${d.place}`}. Можна просто подивитися.</span>
+      </div>
+      <div class="wire" aria-hidden="true"><span></span></div>
+      <div class="step">
+        <span class="mono r">R2 · крок 2</span>
+        <b>Обери напрям</b>
+        <span>Механіка, електроніка чи код. Передумати можна будь-коли.</span>
+      </div>
+      <div class="wire" aria-hidden="true"><span></span></div>
+      <div class="step">
+        <span class="mono r">R3 · крок 3</span>
+        <b>Візьми першу задачу</b>
+        <span>Частина справжнього проєкту, поруч зі старшими.</span>
+      </div>
+      <div class="wire" aria-hidden="true"><span></span></div>
+      <span class="mono out">OUT: перший PR</span>
+    </div>
+  </section>
+
+  <section class="learn">
+    <div class="sec"><span class="mono">5.1</span><h2>Чого навчишся</h2></div>
+    <div class="dirs">
+      <div class="panel dir">
+        <span class="mono hi">Напрям M</span>
+        <b>Механіка</b>
+        <ul><li>3D-моделювання у FreeCAD</li><li>3D-друк і різання фанери</li><li>передачі, кріплення, баланс робота</li></ul>
+      </div>
+      <div class="panel dir">
+        <span class="mono hi">Напрям E</span>
+        <b>Електроніка</b>
+        <ul><li>пайка і читання схем</li><li>датчики, драйвери моторів, живлення</li><li>закон Ома на практиці, а не на дошці</li></ul>
+      </div>
+      <div class="panel dir">
+        <span class="mono hi">Напрям P</span>
+        <b>Програмування</b>
+        <ul><li>C++ для ESP32 і Arduino</li><li>Python, комп’ютерний зір, edge AI</li><li>git, GitHub і pull request’и</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="bottom">
+    <div class="contact" id="contacts">
+      <div class="sec"><span class="mono">5.2</span><h2>Контакти</h2></div>
+      <dl>
+        {
+          d.telegram && (
+            <div>
+              <dt>TELEGRAM</dt>
+              <dd><a href={d.telegram}>{tg}</a></dd>
+            </div>
+          )
+        }
+        {
+          d.email && (
+            <div>
+              <dt>ПОШТА</dt>
+              <dd><a href={`mailto:${d.email}`}>{d.email}</a></dd>
+            </div>
+          )
+        }
+        <div>
+          <dt>GITHUB</dt>
+          <dd><a href={SITE.github}>{SITE.github.replace('https://', '')}</a></dd>
+        </div>
+        {
+          d.address && (
+            <div>
+              <dt>ДЕ МИ</dt>
+              <dd class="addr">{d.address}</dd>
+            </div>
+          )
+        }
+      </dl>
+    </div>
+    <div class="panel parents">
+      <div class="sec"><span class="mono">5.3</span><h2>Батькам і партнерам</h2></div>
+      <div class="prose"><Content /></div>
+      {
+        (d.email || d.telegram) && (
+          <a href={d.email ? `mailto:${d.email}` : d.telegram} class="btn yellow">
+            Написати наставнику →
+          </a>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .circuit-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .fig {
+    font-size: 11px;
+    color: var(--wire);
+    text-transform: uppercase;
+  }
+  .circuit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 0;
+    align-items: stretch;
+  }
+  .io {
+    align-self: center;
+    padding-right: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wire);
+  }
+  .out {
+    align-self: center;
+    padding: 10px 14px;
+    background: var(--yellow);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .wire {
+    align-self: center;
+    display: flex;
+    align-items: center;
+    flex: 0 0 36px;
+  }
+  .wire span {
+    flex: 1;
+    border-top: 2px solid var(--wire);
+  }
+  .step {
+    flex: 1 1 220px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 20px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+  }
+  .step .r {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--hi);
+    text-transform: uppercase;
+  }
+  .step b {
+    font-size: 19px;
+    font-weight: 800;
+  }
+  .step span:last-child {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--fg2);
+  }
+  @media (max-width: 720px) {
+    .circuit {
+      flex-direction: column;
+    }
+    .wire {
+      flex: 0 0 20px;
+      align-self: flex-start;
+      margin-left: 24px;
+      border-left: 2px solid var(--wire);
+    }
+    .wire span {
+      display: none;
+    }
+    .io,
+    .out {
+      align-self: flex-start;
+    }
+  }
+
+  .sec {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .sec .mono {
+    font-size: 13px;
+    color: var(--wire);
+  }
+  .sec h2 {
+    font-size: 28px;
+    letter-spacing: -0.01em;
+  }
+  .learn {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .dirs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 16px;
+  }
+  .dir {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 22px 24px;
+  }
+  .dir .hi {
+    font-size: 12px;
+    color: var(--hi);
+    text-transform: uppercase;
+  }
+  .dir b {
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .dir ul {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--fg2);
+  }
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .contact {
+    flex: 1 1 460px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: clamp(24px, 4vw, 36px);
+    background: var(--panel);
+    border: 1.5px solid var(--wire);
+    scroll-margin-top: 16px;
+  }
+  dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px 32px;
+  }
+  dl div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--wire);
+  }
+  dd {
+    margin: 0;
+    font-size: 17px;
+    overflow-wrap: anywhere;
+  }
+  .addr {
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .parents {
+    flex: 1 1 320px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: space-between;
+    padding: clamp(24px, 4vw, 36px);
+  }
+  .parents .sec h2 {
+    font-size: 24px;
+  }
+  .parents .prose {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .parents .btn {
+    align-self: flex-start;
+  }
+</style>

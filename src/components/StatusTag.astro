@@ -1,0 +1,9 @@
+---
+import { STATUS } from '../lib/site';
+interface Props {
+  status: keyof typeof STATUS;
+}
+const { status } = Astro.props;
+---
+
+<span class:list={['tag', status]}>{STATUS[status]}</span>

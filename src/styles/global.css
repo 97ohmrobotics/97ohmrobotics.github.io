@@ -1,0 +1,547 @@
+/* 97 Ohm Robotics — стиль «Синька».
+   Кольори бренду: білий #FFFFFF (9), фіолетовий #5B2BC4 (7), чорний #0E0D12 (×1),
+   жовтий #F5D31B (допуск — тільки заливкою, ніколи текстом на світлому).
+   Правило: лінії й роздільники не лежать прямо на сітці, тільки на суцільній панелі. */
+
+:root {
+  --yellow: #f5d31b;
+  --yellow-hover: #ffe75c;
+  --violet: #5b2bc4;
+  --violet-light: #b6a2f2;
+  --ink: #0e0d12;
+
+  --font: 'Manrope Variable', system-ui, sans-serif;
+  --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --wrap: 1240px;
+  --gutter: clamp(16px, 4vw, 40px);
+
+  /* Світла тема */
+  color-scheme: light;
+  --bg: #f5f4f8;
+  --grid-major: rgba(91, 43, 196, 0.13);
+  --grid-minor: rgba(91, 43, 196, 0.05);
+  --panel: #ffffff;
+  --panel-2: #fbfafd;
+  --panel-hover: #efeafb;
+  --hatch: rgba(91, 43, 196, 0.09);
+  --line: #b4a7de;
+  --div: #e3def2;
+  --wire: #5b2bc4;
+  --on-wire: #ffffff;
+  --fg: #0e0d12;
+  --fg2: #3a3844;
+  --hi: #5b2bc4;
+  --hi-hover: #3f1d8c;
+  --footer: #ebe8f3;
+  --tint: rgba(91, 43, 196, 0.07);
+}
+
+/* Темна тема. Значення повторюються двічі: для ручного вибору
+   і для «авто», коли в системі увімкнена темна тема. Міняєте одне — міняйте обидва. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #16102e;
+  --grid-major: rgba(182, 162, 242, 0.15);
+  --grid-minor: rgba(182, 162, 242, 0.06);
+  --panel: #1e1641;
+  --panel-2: #1b1339;
+  --panel-hover: #2a1f55;
+  --hatch: rgba(182, 162, 242, 0.13);
+  --line: #6f5db8;
+  --div: #3e3175;
+  --wire: #b6a2f2;
+  --on-wire: #0e0d12;
+  --fg: #ffffff;
+  --fg2: #d3ccee;
+  --hi: #f5d31b;
+  --hi-hover: #ffe75c;
+  --footer: #120c27;
+  --tint: rgba(182, 162, 242, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #16102e;
+    --grid-major: rgba(182, 162, 242, 0.15);
+    --grid-minor: rgba(182, 162, 242, 0.06);
+    --panel: #1e1641;
+    --panel-2: #1b1339;
+    --panel-hover: #2a1f55;
+    --hatch: rgba(182, 162, 242, 0.13);
+    --line: #6f5db8;
+    --div: #3e3175;
+    --wire: #b6a2f2;
+    --on-wire: #0e0d12;
+    --fg: #ffffff;
+    --fg2: #d3ccee;
+    --hi: #f5d31b;
+    --hi-hover: #ffe75c;
+    --footer: #120c27;
+    --tint: rgba(182, 162, 242, 0.12);
+  }
+}
+
+/* ---------- Основа ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font);
+  color: var(--fg);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  transition: background-color 0.3s, color 0.3s;
+  overflow-x: hidden;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 56px var(--gutter) 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+a {
+  color: var(--hi);
+}
+a:hover {
+  color: var(--hi-hover);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 800;
+}
+
+h1 {
+  font-size: clamp(34px, 4.5vw, 52px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--hi);
+  outline-offset: 2px;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 10;
+  padding: 10px 14px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-weight: 700;
+}
+.skip:focus {
+  top: 8px;
+}
+
+/* ---------- Заголовок сторінки ---------- */
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 760px;
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--wire);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lead {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--fg2);
+}
+
+.note {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--wire);
+}
+
+/* ---------- Кнопки, мітки, фільтри ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 20px;
+  background: var(--panel);
+  border: 1.5px solid var(--wire);
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  transition: background-color 0.18s, border-color 0.18s, color 0.18s;
+}
+.btn:hover {
+  background: var(--panel-hover);
+  color: var(--fg);
+}
+.btn.yellow {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--ink);
+}
+.btn.yellow:hover {
+  background: var(--yellow-hover);
+  color: var(--ink);
+}
+
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border: 1px solid var(--wire);
+  color: var(--wire);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tag.in-progress,
+.tag.fill {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--ink);
+}
+.tag.idea {
+  border-style: dashed;
+  border-color: var(--fg2);
+  color: var(--fg2);
+}
+.tag.retired {
+  border-color: var(--div);
+  color: var(--fg2);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.filters:not(.ready) {
+  display: none;
+}
+.chip {
+  min-height: 44px;
+  padding: 0 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.18s, border-color 0.18s, color 0.18s;
+}
+.chip:hover {
+  border-color: var(--wire);
+}
+.chip[aria-pressed='true'] {
+  background: var(--wire);
+  border-color: var(--wire);
+  color: var(--on-wire);
+}
+
+.more,
+.back {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+/* ---------- Картки ---------- */
+
+.lift {
+  transition: background-color 0.18s, border-color 0.18s, color 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 0 -2px var(--hi);
+  border-color: var(--hi);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  text-decoration: none;
+}
+.card:hover {
+  color: var(--fg);
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+}
+
+/* Місце для фото: штрихування, як на кресленні */
+.ph {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--panel-2);
+  background-image: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 12px);
+}
+.ph img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ph-label {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--wire);
+  text-transform: uppercase;
+}
+
+/* Рядки списку на панелі */
+.rows {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  align-items: baseline;
+  padding: 16px 20px;
+  color: var(--fg);
+  text-decoration: none;
+  transition: background-color 0.18s;
+}
+.row + .row {
+  border-top: 1px solid var(--div);
+}
+.row:hover {
+  background: var(--tint);
+  color: var(--fg);
+}
+
+.empty {
+  padding: 28px 24px;
+  background: var(--panel);
+  border: 1px dashed var(--line);
+  color: var(--fg2);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.empty p {
+  margin: 0;
+}
+
+/* Аватар з ініціалами */
+.av {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 18px;
+}
+.av.sm {
+  width: 44px;
+  height: 44px;
+  font-size: 15px;
+}
+.av-v {
+  background: var(--violet);
+  color: #fff;
+  border: 1px solid var(--wire);
+}
+.av-y {
+  background: var(--yellow);
+  color: var(--ink);
+}
+.av-w {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.av-l {
+  background: var(--violet-light);
+  color: var(--ink);
+}
+.av-dash {
+  border: 1px dashed var(--wire);
+  color: var(--fg);
+}
+
+/* ---------- Текст із Markdown ---------- */
+
+.prose {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--fg2);
+  max-width: 72ch;
+}
+.prose > * + * {
+  margin-top: 1em;
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose h2 {
+  margin-top: 44px;
+  font-size: 26px;
+  line-height: 1.25;
+  color: var(--fg);
+}
+.prose h3 {
+  margin-top: 28px;
+  font-size: 20px;
+  color: var(--fg);
+}
+.prose strong {
+  color: var(--fg);
+}
+.prose img {
+  border: 1px solid var(--line);
+}
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  padding: 1px 5px;
+  background: var(--tint);
+}
+.prose pre {
+  padding: 16px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.prose pre code {
+  padding: 0;
+  background: none;
+}
+.prose ul,
+.prose ol {
+  padding-left: 22px;
+}
+.prose li + li {
+  margin-top: 6px;
+}
+.prose blockquote {
+  margin-left: 0;
+  padding: 4px 0 4px 18px;
+  border-left: 3px solid var(--wire);
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.prose th,
+.prose td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--div);
+  text-align: left;
+}
+.prose th {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--wire);
+}
+
+/* Нумерація розділів 1.0, 2.0… як на аркуші */
+.prose.numbered {
+  counter-reset: sec;
+}
+.prose.numbered h2 {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.prose.numbered h2::before {
+  counter-increment: sec;
+  content: counter(sec) '.0';
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--hi);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}

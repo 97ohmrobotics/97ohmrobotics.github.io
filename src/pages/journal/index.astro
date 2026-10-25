@@ -1,0 +1,186 @@
+---
+import Base from '../../layouts/Base.astro';
+import Filters from '../../components/Filters.astro';
+import Photo from '../../components/Photo.astro';
+import { getPosts, getProjects, projectCodes, isUpcoming, isoDate, excerpt, POST_TYPE } from '../../lib/site';
+
+const posts = await getPosts();
+const projects = new Map((await getProjects()).map((p) => [p.id, p]));
+const codes = await projectCodes();
+const upcoming = posts.filter((p) => isUpcoming(p)).sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf())[0];
+const total = posts.length;
+
+const options = [
+  { id: 'all', label: 'Усі' },
+  ...Object.entries(POST_TYPE)
+    .filter(([id]) => posts.some((p) => p.data.type === id))
+    .map(([id, label]) => ({ id, label })),
+];
+---
+
+<Base title="Журнал" sheet={{ name: 'Журнал', n: 3 }} description="Змагання, нотатки розробки й новини команди 97 Ohm.">
+  <div class="intro">
+    <div class="page-head">
+      <span class="kicker">J3 — журнал робіт</span>
+      <h1>Журнал</h1>
+      <p class="lead">Змагання, нотатки розробки й новини в одній стрічці: дата, що робили, що вийшло.</p>
+    </div>
+    {
+      upcoming && (
+        <a href={`/journal/${upcoming.id}/`} class="next">
+          <span class="mono">НАЙБЛИЖЧЕ ЗМАГАННЯ</span>
+          <b>{upcoming.data.title} · {isoDate(upcoming.data.date)}</b>
+        </a>
+      )
+    }
+  </div>
+
+  {
+    posts.length ? (
+      <>
+        {options.length > 2 && <Filters label="Фільтр за типом запису" target="post-list" options={options} />}
+        <div class="list" id="post-list">
+          {posts.map((p, i) => {
+            const project = p.data.project && projects.get(p.data.project.id);
+            const n = String(total - i).padStart(2, '0');
+            return (
+              <a href={`/journal/${p.id}/`} class="entry lift" data-group={p.data.type}>
+                <div class="side">
+                  <span class="mono date">{isoDate(p.data.date)}</span>
+                  <span class="mono type">
+                    #{n} · {isUpcoming(p) ? 'АНОНС' : POST_TYPE[p.data.type].toUpperCase()}
+                  </span>
+                </div>
+                <div class="main">
+                  <span class="ttl">{p.data.title}</span>
+                  {excerpt(p.body) && <span class="text">{excerpt(p.body)}</span>}
+                  {(p.data.result || project) && (
+                    <div class="badges">
+                      {p.data.result && <span class="tag fill">Результат: {p.data.result}</span>}
+                      {project && (
+                        <span class="tag">
+                          → {codes.get(project.id)} {project.data.title.replace(/^.*(«.+»).*$/, '$1')}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {p.data.cover && <Photo src={p.data.cover} alt={p.data.cover_alt} class="thumb" />}
+              </a>
+            );
+          })}
+        </div>
+      </>
+    ) : (
+      <div class="empty">
+        <p>Записів поки немає.</p>
+      </div>
+    )
+  }
+</Base>
+
+<style>
+  .intro {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 48px;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .intro .page-head {
+    flex: 1 1 480px;
+    max-width: 720px;
+  }
+  .next {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 18px;
+    background: var(--panel);
+    border: 1.5px solid var(--hi);
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .next .mono {
+    font-size: 11px;
+    color: var(--hi);
+  }
+  .next b {
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .entry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+    align-items: flex-start;
+    padding: 26px 24px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .entry[hidden] {
+    display: none;
+  }
+  .entry:hover {
+    color: var(--fg);
+  }
+  .entry:hover .ttl {
+    color: var(--hi);
+  }
+  .side {
+    flex: 0 0 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .date {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .type {
+    font-size: 12px;
+    color: var(--wire);
+  }
+  .main {
+    flex: 999 1 380px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ttl {
+    font-size: 23px;
+    line-height: 1.25;
+    font-weight: 800;
+    transition: color 0.18s;
+  }
+  .text {
+    max-width: 640px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--fg2);
+  }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .badges .tag {
+    font-size: 12px;
+    padding: 3px 9px;
+  }
+  .badges .tag:not(.fill) {
+    border-color: var(--line);
+  }
+  .entry :global(.thumb) {
+    flex: 0 1 200px;
+    border: 1px solid var(--line);
+  }
+</style>

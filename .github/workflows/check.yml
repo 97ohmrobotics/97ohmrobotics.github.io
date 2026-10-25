@@ -1,0 +1,23 @@
+name: Check
+
+# Перевірка кожного pull request: чи правильно заповнені поля у Markdown-файлах
+# і чи збирається сайт. Якщо тут червоний хрестик, відкрийте лог: там написано, що виправити.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          ASTRO_TELEMETRY_DISABLED: 1

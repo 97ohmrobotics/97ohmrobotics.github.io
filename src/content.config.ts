@@ -1,6 +1,7 @@
 import { defineCollection, reference } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { isCloudinary } from './lib/image';
 
 // Файли лежать у src/content/<колекція>/<мова>/<назва>.md.
 // id запису — назва файлу без мови: «uk/olena-k.md» → «olena-k».
@@ -23,9 +24,13 @@ function fromFolder(collection: string) {
 const optional = <T extends z.ZodType>(schema: T) =>
   z.preprocess((v) => (v === null || v === '' ? undefined : v), schema.optional());
 
+// Фото без людей — у репозиторії (/media/…), фото з людьми — посилання з Cloudinary наставника.
 const mediaPath = z
   .string()
-  .regex(/^\/media\/.+\.(jpe?g|png|webp|avif|svg)$/i, 'Шлях має починатися з /media/ і закінчуватися на .jpg, .png, .webp, .avif або .svg');
+  .refine(
+    (s) => /^\/media\/.+\.(jpe?g|png|webp|avif|svg)$/i.test(s) || isCloudinary(s),
+    'Шлях має починатися з /media/ (файл у репозиторії) або бути посиланням Copy URL з Cloudinary команди',
+  );
 
 const projects = defineCollection({
   loader: fromFolder('projects'),

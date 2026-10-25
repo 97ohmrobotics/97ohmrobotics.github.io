@@ -14,7 +14,7 @@ const hw = hardwareSummary(p);
 ---
 
 <a href={`/projects/${p.id}/`} class="card lift" data-group={p.data.status}>
-  <Photo src={p.data.cover} alt={p.data.cover_alt}>
+  <Photo src={p.data.cover} alt={p.data.cover_alt} sizes="(min-width: 800px) 400px, 100vw">
     <span class="code mono">{code}</span>
   </Photo>
   <div class="body">

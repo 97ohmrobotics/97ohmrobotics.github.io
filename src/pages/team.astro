@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Filters from '../components/Filters.astro';
+import { imgAttrs } from '../lib/image';
 import { getMembers, getProjects, projectCodes, initials, avatarColor, ROLE_GROUP } from '../lib/site';
 
 const all = await getMembers();
@@ -47,7 +48,7 @@ const options = [
                 <span class="notch" aria-hidden="true" />
                 <div class="who">
                   {m.data.avatar ? (
-                    <img class="av" src={m.data.avatar} alt="" />
+                    <img class="av" {...imgAttrs(m.data.avatar, '160px')} alt="" />
                   ) : (
                     <span class:list={['av', `av-${avatarColor(m.id)}`]} aria-hidden="true">
                       {initials(m.data.name)}

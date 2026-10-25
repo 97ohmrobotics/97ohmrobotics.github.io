@@ -39,12 +39,13 @@ const options = [
     posts.length ? (
       <>
         {options.length > 2 && <Filters label="Фільтр за типом запису" target="post-list" options={options} />}
-        <div class="list" id="post-list">
+        <div class="list bus" id="post-list">
           {posts.map((p, i) => {
             const project = p.data.project && projects.get(p.data.project.id);
             const n = String(total - i).padStart(2, '0');
             return (
               <a href={`/journal/${p.id}/`} class="entry lift" data-group={p.data.type}>
+                <span class:list={['node', isUpcoming(p) && 'yellow']} aria-hidden="true" />
                 <div class="side">
                   <span class="mono date">{isoDate(p.data.date)}</span>
                   <span class="mono type">
@@ -115,6 +116,7 @@ const options = [
     gap: 16px;
   }
   .entry {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 16px 32px;
@@ -124,6 +126,11 @@ const options = [
     border: 1px solid var(--line);
     color: var(--fg);
     text-decoration: none;
+  }
+  /* Вузол шини навпроти дати; -1px — рамка картки */
+  .entry .node {
+    top: 30px;
+    left: calc(-1 * var(--bus-pad) - 8px);
   }
   .entry[hidden] {
     display: none;

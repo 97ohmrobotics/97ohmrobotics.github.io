@@ -443,6 +443,28 @@ h1 {
   color: var(--fg);
 }
 
+/* ---------- Шина ---------- */
+
+/* Вертикальна лінія з вузлами, до якої «підключені» блоки сторінки */
+.bus {
+  --bus-pad: clamp(20px, 3vw, 36px);
+  position: relative;
+  border-left: 1.5px solid var(--line);
+  padding-left: var(--bus-pad);
+}
+.node {
+  position: absolute;
+  top: 6px;
+  left: calc(-1 * var(--bus-pad) - 7px);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--wire);
+}
+.node.yellow {
+  background: var(--yellow);
+}
+
 /* ---------- Текст із Markdown ---------- */
 
 .prose {
@@ -536,6 +558,21 @@ h1 {
   font-family: var(--mono);
   font-size: 14px;
   color: var(--hi);
+}
+
+/* Розділи Markdown на шині: кожен заголовок h2 — вузол */
+.prose.bus h2 {
+  position: relative;
+}
+.prose.bus h2::after {
+  content: '';
+  position: absolute;
+  top: calc(0.625em - 6px);
+  left: calc(-1 * var(--bus-pad) - 7px);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--wire);
 }
 
 @media (prefers-reduced-motion: reduce) {

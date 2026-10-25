@@ -38,7 +38,7 @@ const codes = await projectCodes();
     </div>
   </header>
 
-  {d.cover && <Photo src={d.cover} alt={d.cover_alt} ratio="21 / 9" class="cover" eager />}
+  {d.cover && <Photo src={d.cover} alt={d.cover_alt} ratio="21 / 9" class="post-cover" sizes="(min-width: 900px) 860px, 100vw" eager />}
 
   <article class="prose panel">
     <Content />
@@ -68,7 +68,9 @@ const codes = await projectCodes();
     color: var(--fg2);
     text-transform: none;
   }
-  :global(.cover) {
+  /* Обкладинка такої ж ширини, як текст: одна колонка без «сходинки» */
+  :global(.post-cover) {
+    max-width: 860px;
     border: 1px solid var(--line);
   }
   article {

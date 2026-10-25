@@ -33,6 +33,7 @@ export const ROLE_GROUP = {
   механіка: 'me',
   електроніка: 'el',
   програмування: 'sw',
+  маркетинг: 'mk',
   капітан: 'cap',
   наставник: 'mentor',
 } as const;
@@ -104,6 +105,11 @@ export function avatarColor(id: string) {
   for (const ch of id) h = (h * 31 + ch.codePointAt(0)!) >>> 0;
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
+
+/** Підпис ролі на картці: title, якщо є, інакше напрями через кому. */
+export const roleLabel = (m: CollectionEntry<'members'>) => m.data.title ?? m.data.role.join(', ');
+
+export const isMentor = (m: CollectionEntry<'members'>) => m.data.role.includes('наставник');
 
 export function hardwareSummary(p: CollectionEntry<'projects'>) {
   const h = p.data.hardware;

@@ -2,18 +2,20 @@
 import Base from '../layouts/Base.astro';
 import Filters from '../components/Filters.astro';
 import { imgAttrs } from '../lib/image';
-import { getMembers, getProjects, projectCodes, initials, avatarColor, ROLE_GROUP } from '../lib/site';
+import { getMembers, getProjects, projectCodes, initials, avatarColor, roleLabel, isMentor, ROLE_GROUP } from '../lib/site';
 
 const all = await getMembers();
 const projects = await getProjects();
 const codes = await projectCodes();
 
-const rank = { капітан: 0, механіка: 1, електроніка: 2, програмування: 3, наставник: 9 } as const;
+const rank = { капітан: 0, механіка: 1, електроніка: 2, програмування: 3, маркетинг: 4, наставник: 9 } as const;
+// Порядок на сторінці — за першим (головним) напрямом.
 const students = all
-  .filter((m) => m.data.role !== 'наставник' && m.data.active)
-  .sort((a, b) => rank[a.data.role] - rank[b.data.role] || a.data.name.localeCompare(b.data.name, 'uk'));
-const mentors = all.filter((m) => m.data.role === 'наставник');
-const alumni = all.filter((m) => m.data.role !== 'наставник' && !m.data.active);
+  .filter((m) => !isMentor(m) && m.data.active)
+  .sort((a, b) => rank[a.data.role[0]] - rank[b.data.role[0]] || a.data.name.localeCompare(b.data.name, 'uk'));
+const mentors = all.filter(isMentor);
+const alumni = all.filter((m) => !isMentor(m) && !m.data.active);
+const groups = (m: (typeof all)[number]) => m.data.role.map((r) => ROLE_GROUP[r]).join(' ');
 
 const projectsOf = (id: string) =>
   projects.filter((p) => p.data.team.some((t) => t.id === id)).map((p) => codes.get(p.id));
@@ -25,14 +27,15 @@ const options = [
   { id: 'me', label: 'Механіка' },
   { id: 'el', label: 'Електроніка' },
   { id: 'sw', label: 'Програмування' },
-].filter((o) => o.id === 'all' || students.some((m) => ROLE_GROUP[m.data.role] === o.id));
+  { id: 'mk', label: 'Маркетинг' },
+].filter((o) => o.id === 'all' || students.some((m) => groups(m).split(' ').includes(o.id)));
 ---
 
 <Base title="Команда" sheet={{ name: 'Команда', n: 4 }} description="Склад команди 97 Ohm: учні ліцею №97 і наставник.">
   <div class="page-head">
     <span class="kicker">J4 — склад команди</span>
     <h1>Команда</h1>
-    <p class="lead">Учні ліцею №97. Кожен відповідає за свою частину робота: механіку, електроніку або код.</p>
+    <p class="lead">Учні ліцею №97. Кожен відповідає за свою частину: механіку, електроніку, код або розповідь про команду.</p>
     <p class="note">ПРИМІТКА: фото облич учнів не публікуємо без письмової згоди батьків, тому замість портретів ініціали.</p>
   </div>
 
@@ -44,7 +47,7 @@ const options = [
           {students.map((m, i) => {
             const ps = projectsOf(m.id);
             return (
-              <div class="ic lift" data-group={ROLE_GROUP[m.data.role]}>
+              <div class="ic lift" data-group={groups(m)}>
                 <span class="notch" aria-hidden="true" />
                 <div class="who">
                   {m.data.avatar ? (
@@ -58,7 +61,7 @@ const options = [
                     <span class="mono pos">U{i + 1}</span>
                     <b>{m.data.name}</b>
                     <span class="mono role">
-                      {m.data.role}
+                      {roleLabel(m)}
                       {m.data.grade && ` · ${m.data.grade} кл.`}
                     </span>
                   </div>
@@ -78,23 +81,27 @@ const options = [
   }
 
   {
-    mentors.map((m) => (
+    mentors.length > 0 && (
       <section class="mentor">
-        <div class="who">
-          <span class="av av-dash" aria-hidden="true">
-            {initials(m.data.name)}
-          </span>
-          <div class="meta">
-            <span class="mono pos">U0 — наставник</span>
-            <b>{m.data.name}</b>
-            {about(m) && <span class="text">{about(m)}</span>}
-          </div>
+        <div class="mentors">
+          {mentors.map((m, i) => (
+            <div class="who">
+              <span class="av av-dash" aria-hidden="true">
+                {initials(m.data.name)}
+              </span>
+              <div class="meta">
+                <span class="mono pos">U0{mentors.length > 1 ? `.${i + 1}` : ''} — наставник</span>
+                <b>{m.data.name}</b>
+                {about(m) && <span class="text">{about(m)}</span>}
+              </div>
+            </div>
+          ))}
         </div>
         <a href="/join/" class="btn yellow">
           Хочу в команду →
         </a>
       </section>
-    ))
+    )
   }
 
   {
@@ -205,8 +212,11 @@ const options = [
     background: var(--panel);
     border: 1px dashed var(--line);
   }
-  .mentor .who {
+  .mentors {
     flex: 1 1 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
   .alumni {
     display: flex;

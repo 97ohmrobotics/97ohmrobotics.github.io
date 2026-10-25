@@ -3,7 +3,7 @@ import { getEntries, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Photo from '../../components/Photo.astro';
 import StatusTag from '../../components/StatusTag.astro';
-import { getProjects, getPosts, projectCodes, isoDate, initials, avatarColor, summaryOf } from '../../lib/site';
+import { getProjects, getPosts, projectCodes, isoDate, initials, avatarColor, summaryOf, roleLabel } from '../../lib/site';
 
 export async function getStaticPaths() {
   const projects = await getProjects();
@@ -112,7 +112,7 @@ const bom = [
                 </span>
                 <span class="pinfo">
                   <b>{m.data.name}</b>
-                  <span class="mono">{m.data.role}</span>
+                  <span class="mono">{roleLabel(m)}</span>
                 </span>
               </a>
             ))}

@@ -5,6 +5,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../lib/site';
+import { ogImageUrl } from '../lib/image';
 
 interface Props {
   title?: string;
@@ -17,7 +18,7 @@ interface Props {
 const { title, description = 'Шкільна команда з робототехніки ліцею №97, Дніпро. Проєктуємо, паяємо, програмуємо й записуємо, що спрацювало, а що ні.', sheet, image } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — ${SITE.nameUk}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = new URL(image ?? '/brand/favicon-512.png', Astro.site);
+const ogImage = new URL(image ? ogImageUrl(image) : '/brand/favicon-512.png', Astro.site);
 ---
 
 <!doctype html>

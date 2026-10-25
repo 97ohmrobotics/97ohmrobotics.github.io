@@ -1,5 +1,7 @@
 ---
 // Фото або заштрихована заглушка, якщо фото ще немає.
+import { imgAttrs } from '../lib/image';
+
 interface Props {
   src?: string;
   alt?: string;
@@ -7,14 +9,16 @@ interface Props {
   label?: string;
   class?: string;
   eager?: boolean;
+  /** Яку ширину займає фото на екрані — для вибору розміру з Cloudinary. */
+  sizes?: string;
 }
-const { src, alt = '', ratio = '3 / 2', label, class: cls, eager = false } = Astro.props;
+const { src, alt = '', ratio = '3 / 2', label, class: cls, eager = false, sizes = '(min-width: 1200px) 1200px, 100vw' } = Astro.props;
 ---
 
 <div class:list={['ph', cls]} style={`aspect-ratio: ${ratio}`}>
   {
     src ? (
-      <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+      <img {...imgAttrs(src, sizes)} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" />
     ) : (
       <span class="ph-label" aria-hidden="true">
         {label ?? 'фото буде згодом'}

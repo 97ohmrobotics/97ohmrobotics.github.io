@@ -1,0 +1,25 @@
+---
+// Фото або заштрихована заглушка, якщо фото ще немає.
+interface Props {
+  src?: string;
+  alt?: string;
+  ratio?: string;
+  label?: string;
+  class?: string;
+  eager?: boolean;
+}
+const { src, alt = '', ratio = '3 / 2', label, class: cls, eager = false } = Astro.props;
+---
+
+<div class:list={['ph', cls]} style={`aspect-ratio: ${ratio}`}>
+  {
+    src ? (
+      <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    ) : (
+      <span class="ph-label" aria-hidden="true">
+        {label ?? 'фото буде згодом'}
+      </span>
+    )
+  }
+  <slot />
+</div>

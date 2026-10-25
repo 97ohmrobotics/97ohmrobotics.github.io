@@ -1,0 +1,78 @@
+---
+import { getEntries, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Photo from '../../components/Photo.astro';
+import { getPosts, getProjects, projectCodes, isUpcoming, isoDate, excerpt, POST_TYPE } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const d = post.data;
+const { Content } = await render(post);
+const authors = await getEntries(d.authors);
+const project = d.project ? (await getProjects()).find((p) => p.id === d.project!.id) : undefined;
+const codes = await projectCodes();
+---
+
+<Base title={d.title} description={excerpt(post.body, 160)} image={d.cover} sheet={{ name: 'Журнал' }}>
+  <a href="/journal/" class="back">← J3 / Журнал</a>
+
+  <header class="head">
+    <span class="kicker">
+      {isoDate(d.date)} · {isUpcoming(post) ? 'Анонс змагання' : POST_TYPE[d.type]}
+    </span>
+    <h1>{d.title}</h1>
+    <div class="badges">
+      {d.result && <span class="tag fill">Результат: {d.result}</span>}
+      {
+        project && (
+          <a class="tag" href={`/projects/${project.id}/`}>
+            → {codes.get(project.id)} {project.data.title}
+          </a>
+        )
+      }
+      {authors.length > 0 && <span class="tag plain">Автори: {authors.map((a) => a.data.name).join(', ')}</span>}
+    </div>
+  </header>
+
+  {d.cover && <Photo src={d.cover} alt={d.cover_alt} ratio="21 / 9" class="cover" eager />}
+
+  <article class="prose panel">
+    <Content />
+  </article>
+</Base>
+
+<style>
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 860px;
+  }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .badges .tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    text-decoration: none;
+  }
+  .tag.plain {
+    background: var(--panel);
+    border-color: var(--line);
+    color: var(--fg2);
+    text-transform: none;
+  }
+  :global(.cover) {
+    border: 1px solid var(--line);
+  }
+  article {
+    padding: clamp(20px, 4vw, 40px);
+    max-width: 860px;
+  }
+</style>

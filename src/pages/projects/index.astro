@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import Filters from '../../components/Filters.astro';
+import { getProjects, projectCodes } from '../../lib/site';
+
+const projects = await getProjects();
+const codes = await projectCodes();
+const count = (s: string) => projects.filter((p) => p.data.status === s).length;
+const options = [
+  { id: 'all', label: 'Усі', n: projects.length },
+  { id: 'in-progress', label: 'В роботі', n: count('in-progress') },
+  { id: 'done', label: 'Завершені', n: count('done') },
+  { id: 'idea', label: 'Ідеї', n: count('idea') },
+  { id: 'retired', label: 'Архів', n: count('retired') },
+].filter((o) => o.id === 'all' || o.n > 0);
+---
+
+<Base title="Роботи й проєкти" sheet={{ name: 'Роботи й проєкти', n: 2 }} description="Роботи команди 97 Ohm: задача, як працює, що не вийшло і що далі.">
+  <div class="page-head">
+    <span class="kicker">J2 — реєстр проєктів</span>
+    <h1>Роботи й проєкти</h1>
+    <p class="lead">Кожен проєкт має свій аркуш: задача, як він працює, що не вийшло і що далі. Код відкритий на GitHub.</p>
+  </div>
+
+  {
+    projects.length ? (
+      <>
+        {options.length > 2 && <Filters label="Фільтр за статусом" target="project-list" options={options} />}
+        <div class="grid-cards" id="project-list">
+          {projects.map((p) => (
+            <ProjectCard project={p} code={codes.get(p.id)!} />
+          ))}
+        </div>
+      </>
+    ) : (
+      <div class="empty">
+        <p>
+          Проєктів ще немає. Щоб додати перший, створіть файл у <code>src/content/projects/uk/</code> за шаблоном із
+          README репозиторію.
+        </p>
+      </div>
+    )
+  }
+</Base>

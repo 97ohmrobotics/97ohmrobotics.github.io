@@ -1,0 +1,365 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import Photo from '../components/Photo.astro';
+import ResistorDrawing from '../components/ResistorDrawing.astro';
+import { getProjects, getPosts, projectCodes, isUpcoming, isoDate, POST_TYPE, SITE } from '../lib/site';
+
+const home = await getEntry('pages', 'home');
+const projects = await getProjects();
+const codes = await projectCodes();
+const posts = await getPosts();
+
+const upcoming = posts.filter((p) => isUpcoming(p)).sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf())[0];
+const reports = posts.filter((p) => !isUpcoming(p));
+const latest = reports[0];
+const active = projects.filter((p) => p.data.status === 'in-progress');
+const featured = projects.filter((p) => p.data.status !== 'retired').slice(0, 3);
+const upcomingProject = upcoming?.data.project ? projects.find((p) => p.id === upcoming.data.project!.id) : undefined;
+
+const quote = (t: string) => t.replace(/^.*«(.+)».*$/, '«$1»');
+---
+
+<Base sheet={{ name: 'Головна', n: 1 }} description={home?.data.description}>
+  <section class="hero">
+    <div class="hero-text">
+      <span class="kicker">Ліцей №97 · Дніпро · Robotics team</span>
+      <h1>Будуємо роботів і вчимося на власних помилках</h1>
+      <p class="lead">
+        {SITE.name} — шкільна команда з робототехніки. Проєктуємо, паяємо, програмуємо, їздимо на змагання й записуємо,
+        що спрацювало, а що ні.
+      </p>
+      <div class="actions">
+        <a href="/projects/" class="btn yellow">Наші роботи →</a>
+        <a href="/join/" class="btn">Як приєднатися</a>
+      </div>
+    </div>
+    <figure class="hero-fig">
+      <Photo src={home?.data.hero} alt={home?.data.hero_alt} ratio="4 / 3" label=" " eager>
+        {
+          !home?.data.hero && (
+            <>
+              <span class="cross v" aria-hidden="true" />
+              <span class="cross h" aria-hidden="true" />
+            </>
+          )
+        }
+      </Photo>
+      <figcaption class="mono">РИС. 1 — {home?.data.hero_alt ?? 'тут буде фото робота в майстерні'}</figcaption>
+    </figure>
+  </section>
+
+  <div class="bus">
+    <section aria-label="Зараз у команді" class="net">
+      <span class="node" aria-hidden="true"></span>
+      <span class="kicker">NET 01 — зараз</span>
+      <div class="now">
+        {
+          upcoming && (
+            <a href={`/journal/${upcoming.id}/`} class="card lift tile">
+              <span class="mono small">НАЙБЛИЖЧЕ ЗМАГАННЯ</span>
+              <span class="big">{upcoming.data.title}</span>
+              <span class="mono hi">
+                {isoDate(upcoming.data.date)}
+                {upcomingProject && ` · їде ${quote(upcomingProject.data.title)}`}
+              </span>
+            </a>
+          )
+        }
+        {
+          latest && (
+            <a href={`/journal/${latest.id}/`} class="card lift tile">
+              <span class="mono small">ОСТАННІЙ ДОПИС</span>
+              <span class="big">{latest.data.title}</span>
+              <span class="mono muted">
+                {isoDate(latest.data.date)} · {POST_TYPE[latest.data.type].toUpperCase()}
+              </span>
+            </a>
+          )
+        }
+        <a href="/projects/" class="card lift tile">
+          <span class="mono small">ЗАРАЗ БУДУЄМО</span>
+          <span class="big">
+            {active.length ? active.slice(0, 2).map((p) => quote(p.data.title)).join(' і ') : 'Перший робот сезону'}
+          </span>
+          <span class="mono muted">
+            {active.length ? `${active.length} ${active.length === 1 ? 'проєкт' : active.length < 5 ? 'проєкти' : 'проєктів'} в роботі` : 'скоро на сайті'}
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <section class="net">
+      <span class="node" aria-hidden="true"></span>
+      <div class="sec-head">
+        <span class="kicker">NET 02</span>
+        <h2>Роботи й проєкти</h2>
+        <a href="/projects/" class="more">Усі проєкти →</a>
+      </div>
+      {
+        featured.length ? (
+          <div class="grid-cards">
+            {featured.map((p) => (
+              <ProjectCard project={p} code={codes.get(p.id)!} showHardware={false} />
+            ))}
+          </div>
+        ) : (
+          <div class="empty">
+            <p>Перший проєкт з’явиться тут, щойно команда опише його в репозиторії.</p>
+          </div>
+        )
+      }
+    </section>
+
+    <section class="net">
+      <span class="node" aria-hidden="true"></span>
+      <div class="sec-head">
+        <span class="kicker">NET 03</span>
+        <h2>Журнал</h2>
+        <a href="/journal/" class="more">Увесь журнал →</a>
+      </div>
+      {
+        reports.length ? (
+          <div class="rows">
+            {reports.slice(0, 3).map((p) => (
+              <a href={`/journal/${p.id}/`} class="row">
+                <span class="mono c-date">{isoDate(p.data.date)}</span>
+                <span class="mono c-type">{POST_TYPE[p.data.type].toUpperCase()}</span>
+                <span class="c-title">{p.data.title}</span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div class="empty">
+            <p>Записів поки немає.</p>
+          </div>
+        )
+      }
+    </section>
+
+    <section class="net">
+      <span class="node" aria-hidden="true"></span>
+      <div class="sec-head">
+        <span class="kicker">NET 04</span>
+        <h2>Чому 97 Ohm</h2>
+      </div>
+      <div class="why panel">
+        <div class="why-text">
+          <p>
+            97 — номер нашого ліцею. Резистор на 97 Ом маркується трьома смугами: біла (9), фіолетова (7) і чорна (×1).
+            Четверта, жовта, — допуск ±0,02 %.
+          </p>
+          <p>Тому логотип — це резистор, а його смуги — кольори сайту.</p>
+        </div>
+        <ResistorDrawing />
+      </div>
+    </section>
+
+    <section class="net">
+      <span class="node yellow" aria-hidden="true"></span>
+      <div class="sec-head">
+        <span class="kicker">NET 05</span>
+        <h2>Хочеш у команду?</h2>
+      </div>
+      <div class="join">
+        <div>
+          <span class="mono hi small">ВХІД ВІДКРИТО</span>
+          <p>Досвід не потрібен. Навчимо паяти, програмувати й доводити робота до змагань.</p>
+        </div>
+        <a href="/join/" class="btn yellow">Як приєднатися →</a>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px 56px;
+    align-items: center;
+    padding-bottom: 48px;
+  }
+  .hero-text {
+    flex: 1 1 420px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .hero h1 {
+    font-size: clamp(38px, 5.2vw, 62px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+  }
+  .hero .lead {
+    max-width: 540px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 4px;
+  }
+  .hero-fig {
+    flex: 1 1 480px;
+    min-width: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hero-fig :global(.ph) {
+    border: 1px solid var(--line);
+  }
+  .hero-fig figcaption {
+    font-size: 12px;
+    color: var(--wire);
+  }
+  .cross {
+    position: absolute;
+  }
+  .cross.v {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    border-left: 1px dashed var(--line);
+  }
+  .cross.h {
+    top: 50%;
+    left: 0;
+    right: 0;
+    border-top: 1px dashed var(--line);
+  }
+
+  /* Шина: вертикальна лінія з вузлами, до якої «підключені» розділи */
+  .bus {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 72px;
+    border-left: 1.5px solid var(--line);
+    padding-left: clamp(20px, 3vw, 36px);
+  }
+  .net {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .node {
+    position: absolute;
+    top: 6px;
+    left: calc(-1 * clamp(20px, 3vw, 36px) - 7px);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--wire);
+  }
+  .node.yellow {
+    background: var(--yellow);
+  }
+  .sec-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 16px;
+  }
+  .sec-head h2 {
+    font-size: 32px;
+    letter-spacing: -0.01em;
+  }
+  .sec-head .more {
+    margin-left: auto;
+  }
+
+  .now {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 16px;
+  }
+  .tile {
+    padding: 22px 24px;
+    gap: 8px;
+  }
+  .small {
+    font-size: 12px;
+    color: var(--wire);
+  }
+  .big {
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .hi,
+  .small.hi {
+    font-size: 13px;
+    color: var(--hi);
+  }
+  .muted {
+    font-size: 13px;
+    color: var(--fg2);
+  }
+
+  .c-date {
+    width: 110px;
+    font-size: 13px;
+    color: var(--fg2);
+  }
+  .c-type {
+    width: 110px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wire);
+  }
+  .c-title {
+    flex: 1 1 300px;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .why {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px 56px;
+    align-items: center;
+    padding: clamp(20px, 3vw, 36px);
+  }
+  .why-text {
+    flex: 1 1 320px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .why-text p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--fg2);
+  }
+
+  .join {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 48px;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(24px, 4vw, 40px);
+    background: var(--panel);
+    border: 1.5px solid var(--hi);
+  }
+  .join > div {
+    flex: 1 1 420px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .join p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--fg2);
+  }
+</style>

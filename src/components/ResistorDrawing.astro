@@ -1,0 +1,128 @@
+---
+// Креслення резистора з логотипа: 9 (білий) · 7 (фіолетовий) · ×1 (чорний) · ±0,02 % (жовтий).
+---
+
+<figure class="rd">
+  <svg viewBox="0 0 560 330" role="img" aria-label="Креслення резистора з логотипа: корпус із чотирма смугами, білою, фіолетовою, чорною і жовтою, з розмірними лініями">
+    <g fill="none" class="dim" stroke-width="1">
+      <line x1="140" y1="118" x2="140" y2="78"></line>
+      <line x1="420" y1="118" x2="420" y2="78"></line>
+      <line x1="140" y1="88" x2="420" y2="88"></line>
+      <polyline points="150,83 140,88 150,93"></polyline>
+      <polyline points="410,83 420,88 410,93"></polyline>
+      <line x1="426" y1="124" x2="476" y2="124"></line>
+      <line x1="426" y1="236" x2="476" y2="236"></line>
+      <line x1="466" y1="124" x2="466" y2="236"></line>
+      <polyline points="461,134 466,124 471,134"></polyline>
+      <polyline points="461,226 466,236 471,226"></polyline>
+    </g>
+    <text x="280" y="78" text-anchor="middle" class="t2">280</text>
+    <text x="484" y="152" class="t2" text-anchor="middle" transform="rotate(-90 484 152)">112</text>
+    <line x1="16" y1="180" x2="140" y2="180" class="ink" stroke-width="4"></line>
+    <line x1="420" y1="180" x2="544" y2="180" class="ink" stroke-width="4"></line>
+    <rect x="140" y="124" width="280" height="112" fill="#9E9EA6" class="ink" stroke-width="4"></rect>
+    <rect x="176" y="126" width="28" height="108" fill="#FFFFFF"></rect>
+    <rect x="220" y="126" width="28" height="108" fill="#5B2BC4"></rect>
+    <rect x="264" y="126" width="28" height="108" fill="#0E0D12"></rect>
+    <rect x="360" y="126" width="28" height="108" fill="#F5D31B"></rect>
+    <g class="dim" stroke-width="1">
+      <line x1="190" y1="236" x2="190" y2="279"></line>
+      <line x1="234" y1="236" x2="234" y2="279"></line>
+      <line x1="278" y1="236" x2="278" y2="279"></line>
+      <line x1="374" y1="236" x2="374" y2="279"></line>
+    </g>
+    <g class="balloon" stroke-width="1.5">
+      <circle cx="190" cy="292" r="13"></circle>
+      <circle cx="234" cy="292" r="13"></circle>
+      <circle cx="278" cy="292" r="13"></circle>
+      <circle cx="374" cy="292" r="13"></circle>
+    </g>
+    <g class="t1" text-anchor="middle">
+      <text x="190" y="297">1</text>
+      <text x="234" y="297">2</text>
+      <text x="278" y="297">3</text>
+      <text x="374" y="297">4</text>
+    </g>
+    <text x="16" y="164" class="t3">R1</text>
+  </svg>
+  <dl class="bands">
+    <div><dt>1 · білий</dt><dd>9</dd></div>
+    <div><dt>2 · фіолетовий</dt><dd>7</dd></div>
+    <div><dt>3 · чорний</dt><dd>×1</dd></div>
+    <div><dt>4 · жовтий</dt><dd>±0,02 %</dd></div>
+  </dl>
+  <figcaption class="mono">РИС. 2 — R1 = 97 Ohm ±0,02 %</figcaption>
+</figure>
+
+<style>
+  .rd {
+    margin: 0;
+    flex: 1 1 460px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .dim {
+    stroke: var(--wire);
+  }
+  .ink {
+    stroke: var(--fg);
+  }
+  .balloon {
+    fill: var(--panel);
+    stroke: var(--wire);
+  }
+  text {
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .t1 {
+    fill: var(--fg);
+    font-weight: 700;
+  }
+  .t2 {
+    fill: var(--fg2);
+  }
+  .t3 {
+    fill: var(--wire);
+  }
+  .bands {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    background: var(--panel);
+    border: 1px solid var(--line);
+  }
+  .bands div {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-right: 1px solid var(--div);
+  }
+  .bands div:last-child {
+    border-right: 0;
+  }
+  dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--wire);
+    text-transform: uppercase;
+  }
+  dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 700;
+  }
+  figcaption {
+    font-size: 12px;
+    color: var(--wire);
+  }
+</style>

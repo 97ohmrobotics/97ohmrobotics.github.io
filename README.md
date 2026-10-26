@@ -7,6 +7,8 @@
 
 **Як додати проєкт, допис або себе в команду — дивіться [CONTRIBUTING.md](CONTRIBUTING.md).**
 
+Працюєте з AI-агентом (Claude, Codex)? Інструкції для нього — [AGENTS.md](AGENTS.md), дизайн — [THEME.md](THEME.md).
+
 ## Що де лежить
 
 ```
